@@ -26,6 +26,12 @@ public class NotificationLog {
     public NotificationLog() {
     }
 
+    public NotificationLog(UUID transactionId, String message, NotificationChannel channel) {
+        this.transactionId = transactionId;
+        this.message = message;
+        this.channel = channel;
+    }
+
     public UUID getNotificationId() {
         return notificationId;
     }
