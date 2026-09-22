@@ -30,7 +30,7 @@ public class TransactionEventListener {
     }
 
     private String buildMessage(TransactionEvent event) {
-        return "Transação " + event.transactionType() + "no valor de R$"
-                + event.amount() + "foi processada com o status " + event.transactionStatus();
+        return "Transação " + event.transactionType() + " no valor de R$"
+                + event.amount() + " foi processada com o status " + event.transactionStatus();
     }
 }
