@@ -27,6 +27,11 @@ spring:
         spring.json.trusted.packages: "*"
         spring.json.use.type.headers: false
         spring.json.value.default.type: com.laressa.notification.event.TransactionEvent
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/bagual-bank
 
 server:
   port: 8083
