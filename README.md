@@ -1,24 +1,48 @@
-# bagual-bank
-Sistema financeiro simplificado construído em arquitetura de microsserviços, simulando operações bancárias básicas como criação de conta, depósito, saque e transferências.
+# notification
+Microsserviço de notificações do Bagual Bank: notificações assíncronas sobre transações realizadas
 
-No Rio Grande do Sul, bagual é um termo que serve pra descrever um cavalo xucro, selvagem, não domado. Mas quando usado pra se referir a pessoas, representa coragem, resiliência e autenticidade.
+## Sobre o serviço
+Escuta o `transacoes` no Kafka, publicado pelo `transactions` sempre que uma transação é concluída, ou falha. Ao receber um evento monta uma mensagem descritiva e persiste um registro de notificação (simulando o envio de um aviso ao cliente) por e-mail, ou SMS, sem de fato enviar externamente.
 
-# Sobre o projeto
-Tem como objetivo aplicar os conceitos e ferramentas utilizados em sistemas corporativos de médio/grande porte: comunicação entre serviços, consistência de dados distribuídos, testes automatizados e containerização.
+A comunicação com o `transaction` é assíncrona: o `notification` não é chamado diretamente via REST, processando os eventos no seu próprio ritmo, sem impactar o fluxo principal de criação de transações.
 
-# Arquitetura
-O sistema é dividido em microsserviços independentes:
-| SERVIÇO | RESPONSABILIDADE | STATUS |
-|---|---|---|
-| account      | Cadastro de contas, consulta de saldo, débito/crédito | **Implementado** |
-| transaction  | Depósitos, saques e transferências entre contas       | **Implementado** |
-| notification | Notificações assíncronas sobre transações realizadas  | **Em andamento** |
+## Funcionalidades implementadas
+* Consumo de eventos de transação via Kafka
+* Persistência de histórico de notificações
+* Buscar notificação por id (`GET /notifications/{id}`)
+* Listar notificações (`GET /notifications`)
+* Tratamento centralizado de erros
+* Migração de schema com Flyway
+* Testes unitários (consumer e service layer)
+* Containerização completa (aplicação + banco + Kafka via Docker Compose)
 
-# Tecnologias
+## Tecnologias
 - Java 21 + Spring Boot 3;
 - Maven;
-- Apache Kafka;
 - PostgreSQL;
 - Flyway;
-- JUnit 5 e Mockito;
+- Apache Kafka (Spring Kafka);
+- JUnit 5, Mockito e AssertJ;
 - Docker e Docker Compose.
+
+## Decisões técnicas
+* **Comunicação assíncrona via Kafka:** desacopla `transaction` e `notification`. Mesmo que o `notification` esteja indisponível, o `transaction` continua funcionando normalmente;
+* **Persistência do histórico:** além de consumir o evento, o serviço registra a notificação no banco, permitindo a consulta posterior via API;
+* **`@JsonCreator`/`@JsonProperty` no evento:** garante a desserialização correta do `TransactionEvent`, independente de configuração de compilador (evita depender da flag `-parameters`, que nem sempre é aplicada ao rodar pela IDE);
+* **Kafka compartilhado com o `transaction` via rede Docker externa:** o broker roda no `docker-compose.yml` do `transaction`, o `notification` se conecta a ele através da rede `bagual-network`.
+
+## Como executar
+
+Pré-requisito: Docker Desktop instalado e em execução, e o [transaction](https://github.com/laressamoraes/bagual-transaction) rodando.
+
+```bash
+docker compose up --build -d
+```
+
+A API fica disponível em: http://localhost:8083
+
+## Rodando os testes
+
+```bash
+mvn test
+```
