@@ -16,6 +16,9 @@ A comunicação com o `transaction` é assíncrona: o `notification` não é cha
 * Testes unitários (consumer e service layer)
 * Containerização completa (aplicação + banco + Kafka via Docker Compose)
 
+## Segurança
+Protegido com OAuth2/JWT via Keycloak ([bagual-auth](https://github.com/laressamoraes/bagual-auth)). Os endpoints REST exigem um token Bearer válido e o consumo de eventos via Kafka não passa por essa validação, já que não é uma chamada HTTP.
+
 ## Tecnologias
 - Java 21 + Spring Boot 3;
 - Maven;
@@ -33,7 +36,7 @@ A comunicação com o `transaction` é assíncrona: o `notification` não é cha
 
 ## Como executar
 
-Pré-requisito: Docker Desktop instalado e em execução, e o [transaction](https://github.com/laressamoraes/bagual-transaction) rodando.
+Pré-requisito: Docker Desktop instalado e em execução, o [auth](https://github.com/laressamoraes/bagual-auth) rodando, e o [transaction](https://github.com/laressamoraes/bagual-transaction) rodando.
 
 ```bash
 docker compose up --build -d
